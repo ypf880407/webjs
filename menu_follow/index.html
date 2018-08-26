@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>导航菜单滚动跟随</title>
+    <style type="text/css" rel="stylesheet">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        .context {
+            height: 3000px;
+            background: #F00;
+            position: relative;
+        }
+        
+        .menu {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100px;
+            background: #00F;
+            line-height: 23px;
+            height: 23px;
+        }
+        
+        .menu li {
+            float: left;
+            padding-right: 5px;
+            height: 23px;
+        }
+    </style>
+    <script type="text/javascript" src="/webjs/plugin/js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            var currTop = $(window).scrollTop();
+            var fixMenu = ($(".menu").css("position") == "fixed") || (currTop > 0);
+            var startAnimate = false;
+            var start = false;
+            checkMenu();
+            $(window).scroll(function() {
+                fixMenu = ($(window).scrollTop() - currTop) > 0;
+                if (!startAnimate && !start) {
+                    startAnimate = true;
+                }
+                checkMenu();
+                currTop = $(window).scrollTop();
+            });
+
+            function checkMenu() {
+                console.info("fixMenu", fixMenu, "startAnimate", startAnimate);
+                if (fixMenu) {
+                    $(".menu").css("position", "fixed");
+                } else if (startAnimate && !start) {
+                    start = true;
+                    var height = $(".menu").height();
+                    $(".menu").animate({
+                        "top": -height
+                    }, 100, function() {
+                        $(".menu").css({
+                            "top": 0,
+                            "position": "relative"
+                        });
+                    });
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div class="context">
+        <div class="menu">
+            <ul>
+                <li>首页</li>
+                <li>菜单</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
