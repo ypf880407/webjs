@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>懒加载效果</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        .bottom {
+            line-height: 30px;
+            height: 30px;
+        }
+        
+        ul.list li {
+            line-height: 150px;
+            height: 150px;
+        }
+        
+        ul.list li:nth-child(odd) {
+            background: #ccc;
+        }
+    </style>
+    <script type="text/javascript" src="/webjs/plugin/js/jquery-1.10.2.min.js"></script>
+    <script type='text/javascript'>
+        var end = false;
+        page = 0;
+        $(function() {
+            callNext()
+            var $document = $(document); //缓存一下$(document)
+            $(window).scroll(function() {
+                var $this = $(this),
+                    scrollTop = $this.scrollTop(),
+                    scrollHeight = $document.height(),
+                    windowHeight = $this.height();
+                if (scrollTop + windowHeight >= scrollHeight) {
+                    setTimeout(callNext, 600);
+                }
+            });
+
+            function callNext() {
+                getData("data", {
+                    no: ++page,
+                    size: 5
+                }, function(item) {
+                    $("<li></li>").html(item.title).appendTo($(".list"));
+                })
+            }
+        });
+
+        function getData(url, param, call) {
+            if (!end) {
+                $.ajax({
+                    url: url + param.no + ".ajax",
+                    type: "GET",
+                    async: true,
+                    cache: false,
+                    data: param,
+                    dataType: "json",
+                    timeout: 0,
+                    success: function(data, code) {
+                        if (data.totalPage <= page) {
+                            end = true;
+                        }
+                        if (data.datas != null) {
+                            console.info(data);
+                            $.each(data.datas, function(index, item) {
+                                call(item);
+                            });
+                        }
+                    },
+                    error: function(req, code, msg) {
+                        console.error(code);
+                    }
+                });
+            } else {
+                $(".bottom").text("没有数据了");
+            }
+
+        }
+    </script>
+</head>
+
+<body>
+    <div class="menu">
+        <ul class="list"></ul>
+        <div class="bottom">加载更多...</div>
+    </div>
+</body>
+
+</html>
